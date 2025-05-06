@@ -1,0 +1,59 @@
+name: RWA CI Pipeline
+
+on:
+  push:
+    branches: [main, ci-cd-pipeline]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Build Frontend
+        run: npm run build:web
+
+  api-test:
+    needs: build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Run API Tests
+        run: npm run test:api
+
+  ui-test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Cypress UI Test
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: app
+          build: npm run build:web
+          start: npm start
+          wait-on: 'http://localhost:3000'
+
+  deploy:
+    needs: [api-test, ui-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Placeholder
+        run: echo "Deploy ke Render / Railway / Netlify"
