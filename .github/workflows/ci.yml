@@ -7,9 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -24,9 +21,6 @@ jobs:
   api-test:
     needs: build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -46,7 +40,6 @@ jobs:
       - name: Run Cypress UI Test
         uses: cypress-io/github-action@v6
         with:
-          working-directory: app
           build: npm run build:web
           start: npm start
           wait-on: 'http://localhost:3000'
