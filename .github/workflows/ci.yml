@@ -38,20 +38,36 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-      - name: Run API Tests
-        run: npm run test:api
+
+      - name: Run Cypress UI Test
+        uses: cypress-io/github-action@v6
+        with:
+          build: npm run build:ci
+          start: npm start
+          wait-on: 'http://localhost:3000'
+          spec: cypress/tests/api/*.spec.ts
 
   ui-test:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
       - name: Run Cypress UI Test
         uses: cypress-io/github-action@v6
         with:
-          build: npm run build:web
+          build: npm run build:ci
           start: npm start
           wait-on: 'http://localhost:3000'
+          spec: cypress/tests/ui/*.spec.ts
 
   deploy:   
     needs: [api-test, ui-test]
