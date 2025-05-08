@@ -15,8 +15,17 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+      - name: Set dummy environment variables
+        run: |
+          echo "VITE_AUTH0=false" >> .env
+          echo "VITE_GOOGLE=false" >> .env
+          echo "VITE_AWS_COGNITO=false" >> .env
+          echo "VITE_OKTA=false" >> .env
+  
+      - name: Copy mock AWS Cognito files
+        run: npm run predev:cognito:ci
       - name: Build Frontend
-        run: npm run build:web
+        run: npm run build:ci
 
   api-test:
     needs: build
@@ -44,7 +53,7 @@ jobs:
           start: npm start
           wait-on: 'http://localhost:3000'
 
-  deploy:
+  deploy:   
     needs: [api-test, ui-test]
     runs-on: ubuntu-latest
     steps:
