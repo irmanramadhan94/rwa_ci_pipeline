@@ -27,7 +27,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
         run: npm run build:ci
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Build Frontend
           path: build
@@ -78,7 +78,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
         uses: actions/checkout@v3 # Mengambil kode dari repository
       
       - name: Download build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: Build Frontend
           path: build
