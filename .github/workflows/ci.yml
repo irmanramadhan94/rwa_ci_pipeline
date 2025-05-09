@@ -64,18 +64,33 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
           wait-on: 'http://localhost:3000' # Menunggu server berjalan
           spec: cypress/tests/ui/*.spec.ts # Lokasi file spesifikasi pengujian UI
 
-  deploy-frontend:
-    needs: [api-test, ui-test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+  deploy-frontend: # Job untuk melakukan deploy frontend
+    needs: [api-test, ui-test] # Job ini bergantung pada job api-test dan ui-test
+    runs-on: ubuntu-latest # Menentukan runner yang digunakan (Ubuntu terbaru)
+    steps: # Langkah-langkah dalam job deploy-frontend
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./frontend
-          scope: your-vercel-username
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        working-directory: ./
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./
+
+      - name: Deploy to Vercel # Menentukan nama langkah untuk deploy ke Vercel
+        uses: amondnet/vercel-action@v25 # Menggunakan action pihak ketiga untuk deploy ke Vercel
+        with: # Menyediakan parameter yang diperlukan untuk action
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Token autentikasi untuk Vercel
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }} # ID organisasi di Vercel
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }} # ID proyek di Vercel
+          working-directory: ./ # Direktori kerja tempat kode frontend berada
+          scope: ${{ secrets.VERCEL_SCOPE }} # Scope atau username Vercel yang digunakan
 
   deploy-backend:
     needs: [api-test, ui-test]
