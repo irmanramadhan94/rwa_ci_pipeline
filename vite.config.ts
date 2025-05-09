@@ -14,7 +14,7 @@ export default defineConfig(({ command, mode }) => {
       port: 3000,
     },
     build: {
-      outDir: "build",
+      outDir: "dist",
       sourcemap: true,
     },
     plugins: [

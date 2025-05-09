@@ -1,77 +1,86 @@
-name: RWA CI Pipeline
+name: RWA CI Pipeline # Menentukan nama pipeline CI
 
-on:
-  push:
-    branches: [main, ci-cd-pipeline]
+on: # Menentukan event yang memicu pipeline
+  push: # Pipeline akan berjalan saat ada push
+    branches: [main, ci-cd-pipeline] # Hanya pada branch main dan ci-cd-pipeline
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
+jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
+  build: # Job untuk membangun aplikasi
+    runs-on: ubuntu-latest # Menentukan runner yang digunakan (Ubuntu terbaru)
+    steps: # Langkah-langkah dalam job build
+      - uses: actions/checkout@v3 # Mengambil kode dari repository
+      - name: Setup Node # Menyiapkan Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-      - name: Install dependencies
+          node-version: 18 # Versi Node.js yang digunakan
+      - name: Install dependencies # Menginstal dependensi proyek
         run: npm install --legacy-peer-deps
-      - name: Set dummy environment variables
+      - name: Set dummy environment variables # Menambahkan variabel lingkungan dummy
         run: |
           echo "VITE_AUTH0=false" >> .env
           echo "VITE_GOOGLE=false" >> .env
           echo "VITE_AWS_COGNITO=false" >> .env
           echo "VITE_OKTA=false" >> .env
-  
-      - name: Copy mock AWS Cognito files
+      - name: Copy mock AWS Cognito files # Menyalin file mock AWS Cognito
         run: npm run predev:cognito:ci
-      - name: Build Frontend
+      - name: Build Frontend # Membangun aplikasi frontend
         run: npm run build:ci
 
-  api-test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
+  api-test: # Job untuk pengujian API
+    needs: build # Job ini bergantung pada job build
+    runs-on: ubuntu-latest # Menentukan runner yang digunakan
+    steps: # Langkah-langkah dalam job api-test
+      - uses: actions/checkout@v3 # Mengambil kode dari repository
+      - name: Setup Node # Menyiapkan Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-      - name: Install dependencies
+          node-version: 18 # Versi Node.js yang digunakan
+      - name: Install dependencies # Menginstal dependensi proyek
         run: npm install --legacy-peer-deps
-
-      - name: Run Cypress UI Test
+      - name: Run Cypress API Test # Menjalankan pengujian API menggunakan Cypress
         uses: cypress-io/github-action@v6
         with:
-          build: npm run build:ci
-          start: npm start
-          wait-on: 'http://localhost:3000'
-          spec: cypress/tests/api/*.spec.ts
+          build: npm run build:ci # Perintah build
+          start: npm start # Perintah untuk memulai server
+          wait-on: 'http://localhost:3000' # Menunggu server berjalan
+          spec: cypress/tests/api/*.spec.ts # Lokasi file spesifikasi pengujian API
 
-  ui-test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node
+  ui-test: # Job untuk pengujian UI
+    needs: build # Job ini bergantung pada job build
+    runs-on: ubuntu-latest # Menentukan runner yang digunakan
+    steps: # Langkah-langkah dalam job ui-test
+      - uses: actions/checkout@v3 # Mengambil kode dari repository
+      - name: Setup Node # Menyiapkan Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-
-      - name: Install dependencies
+          node-version: 18 # Versi Node.js yang digunakan
+      - name: Install dependencies # Menginstal dependensi proyek
         run: npm install --legacy-peer-deps
-
-      - name: Run Cypress UI Test
+      - name: Run Cypress UI Test # Menjalankan pengujian UI menggunakan Cypress
         uses: cypress-io/github-action@v6
         with:
-          build: npm run build:ci
-          start: npm start
-          wait-on: 'http://localhost:3000'
-          spec: cypress/tests/ui/*.spec.ts
+          build: npm run build:ci # Perintah build
+          start: npm start # Perintah untuk memulai server
+          wait-on: 'http://localhost:3000' # Menunggu server berjalan
+          spec: cypress/tests/ui/*.spec.ts # Lokasi file spesifikasi pengujian UI
 
-  deploy:   
+  deploy-frontend:
     needs: [api-test, ui-test]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Placeholder
-        run: echo "Deploy ke Render / Railway / Netlify"
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          scope: your-vercel-username
+
+  deploy-backend:
+    needs: [api-test, ui-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deployment
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
