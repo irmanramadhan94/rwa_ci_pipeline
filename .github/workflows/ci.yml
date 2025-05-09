@@ -29,7 +29,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: frontend-build
+          name: Build Frontend
           path: build
 
   api-test: # Job untuk pengujian API
@@ -80,7 +80,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: frontend-build
+          name: Build Frontend
           path: build
 
       - name: Deploy to Vercel # Menentukan nama langkah untuk deploy ke Vercel
