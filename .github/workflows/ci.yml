@@ -25,6 +25,10 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
         run: npm run predev:cognito:ci
       - name: Build Frontend # Membangun aplikasi frontend
         run: npm run build:ci
+      - name: Debug Build Directory
+        run: ls -la build
+      - name: Check Build Directory
+        run: if [ ! -d "build" ]; then echo "Build directory not found"; exit 1; fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -78,7 +82,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
         uses: actions/checkout@v3 # Mengambil kode dari repository
       
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3.0.0
         with:
           name: Build Frontend
           path: build
