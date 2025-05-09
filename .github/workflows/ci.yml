@@ -27,7 +27,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
         run: npm run build:ci
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: frontend-build
           path: build
