@@ -25,16 +25,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
         run: npm run predev:cognito:ci
       - name: Build Frontend # Membangun aplikasi frontend
         run: npm run build:ci
-      - name: Debug Build Directory
-        run: ls -la build
-      - name: Check Build Directory
-        run: if [ ! -d "build" ]; then echo "Build directory not found"; exit 1; fi
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: Build Frontend
-          path: build
+      
 
   api-test: # Job untuk pengujian API
     needs: build # Job ini bergantung pada job build
@@ -81,11 +72,7 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
       - name: Checkout repository
         uses: actions/checkout@v3 # Mengambil kode dari repository
       
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3.0.0
-        with:
-          name: Build Frontend
-          path: build
+     
 
       - name: Deploy to Vercel # Menentukan nama langkah untuk deploy ke Vercel
         uses: amondnet/vercel-action@v25 # Menggunakan action pihak ketiga untuk deploy ke Vercel
