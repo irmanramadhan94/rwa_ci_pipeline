@@ -1,4 +1,4 @@
-test
+test2
 
 <p align="center">
   <!-- We use two SVGs here so that this displays correctly
