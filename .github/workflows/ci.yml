@@ -26,6 +26,12 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
       - name: Build Frontend # Membangun aplikasi frontend
         run: npm run build:ci
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: build
+
   api-test: # Job untuk pengujian API
     needs: build # Job ini bergantung pada job build
     runs-on: ubuntu-latest # Menentukan runner yang digunakan
@@ -68,20 +74,14 @@ jobs: # Mendefinisikan pekerjaan (jobs) dalam pipeline
     needs: [api-test, ui-test] # Job ini bergantung pada job api-test dan ui-test
     runs-on: ubuntu-latest # Menentukan runner yang digunakan (Ubuntu terbaru)
     steps: # Langkah-langkah dalam job deploy-frontend
-      - uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # Mengambil kode dari repository
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
         with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-        working-directory: ./
-
-      - name: Build frontend
-        run: npm run build
-        working-directory: ./
+          name: frontend-build
+          path: build
 
       - name: Deploy to Vercel # Menentukan nama langkah untuk deploy ke Vercel
         uses: amondnet/vercel-action@v25 # Menggunakan action pihak ketiga untuk deploy ke Vercel

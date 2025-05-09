@@ -1,8 +1,8 @@
-import path from "path";
-import express from "express";
+const path = require("path");
+const express = require("express");
 import history from "connect-history-api-fallback";
-import setupProxy from "../src/setupProxy";
-import { frontendPort } from "../src/utils/portUtils";
+const setupProxy = require("../src/setupProxy");
+const { frontendPort } = require("../src/utils/portUtils");
 
 const app = express();
 

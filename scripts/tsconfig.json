@@ -5,5 +5,7 @@
   "compilerOptions": {
     "types": ["node"],
     "isolatedModules": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
 }

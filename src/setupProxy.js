@@ -1,7 +1,10 @@
-const createProxyMiddleware = require("http-proxy-middleware");
-require("dotenv").config();
+import { Application } from "express";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import dotenv from "dotenv";
 
-module.exports = function (app) {
+dotenv.config();
+
+export default function setupProxy(app) {
   app.use(
     createProxyMiddleware(["/login", "/callback", "/logout", "/checkAuth", "graphql"], {
       target: `http://localhost:${process.env.BACKEND_PORT}`,
@@ -9,4 +12,4 @@ module.exports = function (app) {
       logLevel: "debug",
     })
   );
-};
+}
